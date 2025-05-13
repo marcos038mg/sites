@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Séries - Disnei</title>
+<style>
+  body { margin: 0; font-family: 'Arial', sans-serif; background: #121212; color: white; overflow-x: hidden; }
+  header {
+    background: #121212;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+  }
+  header img { height: 120px; margin-right: 20px; }
+  header h1 {
+    color: white;
+    font-size: 2.5rem;
+    margin: 0;
+    font-weight: bold;
+    position: absolute;
+    left: 20px;
+  }
+  nav {
+    background: rgba(31, 31, 31, 0.9);
+    display: flex;
+    justify-content: center;
+    padding: 15px;
+    position: fixed;
+    width: 100%;
+    top: 120px;
+    z-index: 1000;
+  }
+  nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.1rem;
+    padding: 10px 20px;
+    transition: color 0.3s ease;
+  }
+  nav a:hover { color: #00BFFF; }
+  .container { padding: 160px 20px 20px; }
+  .series-list, .season-list, .episode-list { display: flex; flex-wrap: wrap; gap: 20px; }
+  .card {
+    background: #1f1f1f;
+    padding: 15px;
+    border-radius: 5px;
+    width: 200px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.3s ease, background 0.3s ease;
+  }
+  .card:hover { transform: scale(1.05); background: #2a2a2a; }
+  .btn {
+    background: #00BFFF;
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 1rem;
+    border-radius: 5px;
+    margin: 5px;
+  }
+  .btn:hover { background: #009ACD; }
+  .btn.active {
+    background: white;
+    color: black;
+  }
+  .player-container {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    margin-top: 20px;
+  }
+  video {
+    width: 65%;
+    height: 400px;
+    border-radius: 10px;
+    background: black;
+  }
+  .episode-list {
+    flex-direction: column;
+    width: 35%;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="https://logos-marcas.com/wp-content/uploads/2021/03/Disney-Simbolo.png" alt="Logo Disnei">
+  <h1>Disnei</h1>
+</header>
+
+<nav>
+  <a href="index.html">Home</a>
+  <a href="series.html">Séries</a>
+  <a href="filmes.html">Filmes</a>
+</nav>
+
+<div class="container">
+  <h1>Séries</h1>
+
+  <div id="seriesList" class="series-list">
+    <div class="card" onclick="selecionarSerie('tlou')">
+      <h3>The Last of Us (TLOU)</h3>
+    </div>
+    <div class="card" onclick="selecionarSerie('outra')">
+      <h3>Outra Série</h3>
+    </div>
+  </div>
+
+  <div id="temporadas" style="display:none;">
+    <h2 id="serieTitulo"></h2>
+    <div id="seasonList" class="season-list"></div>
+  </div>
+
+  <div id="episodios" style="display:none;">
+    <h3 id="temporadaTitulo"></h3>
+    <div class="player-container">
+      <video id="seriePlayer" controls></video>
+      <div id="episodeList" class="episode-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const seriesData = {
+    tlou: {
+      nome: "The Last of Us",
+      temporadas: {
+        "Temporada 1": [
+          {
+            nome: "Episódio 1 - Quando você estiver perdido na escuridão",
+            mp4: "https://s-delivery34.mxcontent.net/v2/1nmvxwjptde7og.mp4?s=n-JYF5sVfYx8lXjo3IcqTg&e=1747189007&_t=1747170592"
+          },
+          {
+            nome: "Episódio 2 - Infectados",
+            mp4: "https://s-delivery41.mxcontent.net/v2/k0pn7r6ksn3eor.mp4?s=JpK3kWWB876EWFxQfDnK1w&e=1747189398&_t=17471715464"
+          }
+        ]
+      }
+    },
+    outra: {
+      nome: "Outra Série Exemplo",
+      temporadas: {
+        "Temporada 1": [
+          {
+            nome: "Episódio 1",
+            mp4: "https://www.w3schools.com/html/mov_bbb.mp4"
+          },
+          {
+            nome: "Episódio 2",
+            mp4: "https://www.w3schools.com/html/movie.mp4"
+          }
+        ]
+      }
+    }
+  };
+
+  const seriesList = document.getElementById('seriesList');
+  const temporadasDiv = document.getElementById('temporadas');
+  const episodiosDiv = document.getElementById('episodios');
+  const serieTitulo = document.getElementById('serieTitulo');
+  const temporadaTitulo = document.getElementById('temporadaTitulo');
+  const seasonList = document.getElementById('seasonList');
+  const episodeList = document.getElementById('episodeList');
+  const player = document.getElementById('seriePlayer');
+
+  let currentEpisodeButton = null;
+
+  function selecionarSerie(id) {
+    temporadasDiv.style.display = 'block';
+    episodiosDiv.style.display = 'none';
+    serieTitulo.innerText = seriesData[id].nome;
+    seasonList.innerHTML = '';
+
+    const temporadas = seriesData[id].temporadas;
+    for (let temporada in temporadas) {
+      const btn = document.createElement('button');
+      btn.className = 'btn';
+      btn.innerText = temporada;
+      btn.onclick = () => mostrarEpisodios(id, temporada);
+      seasonList.appendChild(btn);
+    }
+  }
+
+  function mostrarEpisodios(serieId, temporada) {
+    episodiosDiv.style.display = 'block';
+    temporadaTitulo.innerText = temporada;
+    episodeList.innerHTML = '';
+
+    const eps = seriesData[serieId].temporadas[temporada];
+    eps.forEach((ep) => {
+      const epDiv = document.createElement('div');
+      epDiv.style.marginBottom = "15px";
+
+      const titulo = document.createElement('p');
+      titulo.textContent = ep.nome;
+      titulo.style.margin = "0 0 5px 0";
+      epDiv.appendChild(titulo);
+
+      const btnMp4 = document.createElement('button');
+      btnMp4.className = 'btn';
+      btnMp4.innerText = 'Assistir MP4';
+      btnMp4.onclick = () => assistir(ep.mp4, btnMp4);
+      epDiv.appendChild(btnMp4);
+
+      episodeList.appendChild(epDiv);
+    });
+  }
+
+  function assistir(url, botao) {
+    player.src = url;
+    player.load();
+    player.play();
+
+    if (currentEpisodeButton) {
+      currentEpisodeButton.classList.remove('active');
+    }
+    botao.classList.add('active');
+    currentEpisodeButton = botao;
+  }
+
+  function reproduzirProximo() {
+    if (!currentEpisodeButton) return;
+
+    const parentDiv = currentEpisodeButton.parentElement;
+    const allEpisodeDivs = Array.from(episodeList.querySelectorAll('div'));
+    const currentDivIndex = allEpisodeDivs.indexOf(parentDiv);
+
+    const nextDiv = allEpisodeDivs[currentDivIndex + 1];
+    if (nextDiv) {
+      const nextButton = nextDiv.querySelector('.btn');
+      if (nextButton) {
+        assistir(seriesData.outra.temporadas["Temporada 1"][currentDivIndex + 1].mp4, nextButton);
+      }
+    } else {
+      console.log('Acabaram os episódios!');
+    }
+  }
+
+  player.addEventListener('ended', reproduzirProximo);
+</script>
+
+</body>
+</html>
